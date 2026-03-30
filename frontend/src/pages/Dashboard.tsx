@@ -213,34 +213,33 @@ export default function Dashboard() {
   const { user } = useAuth();
   const { tasks, total, loading, error, fetchTasks, clearError } = useTaskStore();
   const [systemStats, setSystemStats] = useState<SystemStatsResponse | null>(null);
+  const [prevStats, setPrevStats] = useState<SystemStatsResponse | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsFetchError, setStatsFetchError] = useState<string | null>(null);
-  const prevStatsRef = useRef<SystemStatsResponse | null>(null);
 
   useEffect(() => { void fetchTasks(1); }, [fetchTasks]);
 
+  const fetchStatsRef = useRef(0);
+
   useEffect(() => {
-    let cancelled = false;
-    setStatsLoading(true);
-    setStatsFetchError(null);
-    void systemApi
+    const id = ++fetchStatsRef.current;
+    systemApi
       .stats()
       .then((data) => {
-        if (cancelled) return;
-        setSystemStats((prev) => { prevStatsRef.current = prev; return data; });
+        if (id !== fetchStatsRef.current) return;
+        setSystemStats((prev) => { setPrevStats(prev); return data; });
       })
-      .catch(() => { if (!cancelled) setStatsFetchError('指标接口暂不可用，已用当前列表估算'); })
-      .finally(() => { if (!cancelled) setStatsLoading(false); });
-    return () => { cancelled = true; };
+      .catch(() => { if (id === fetchStatsRef.current) setStatsFetchError('指标接口暂不可用，已用当前列表估算'); })
+      .finally(() => { if (id === fetchStatsRef.current) setStatsLoading(false); });
   }, []);
 
   const refreshAll = () => {
     void fetchTasks(1);
     setStatsLoading(true);
     setStatsFetchError(null);
-    void systemApi
+    systemApi
       .stats()
-      .then((data) => { setSystemStats((prev) => { prevStatsRef.current = prev; return data; }); })
+      .then((data) => { setSystemStats((prev) => { setPrevStats(prev); return data; }); })
       .catch(() => setStatsFetchError('指标接口暂不可用，已用当前列表估算'))
       .finally(() => setStatsLoading(false));
   };
@@ -251,11 +250,10 @@ export default function Dashboard() {
   const displayCompleted = systemStats?.tasks.completed ?? client.completed;
   const displayFailed = systemStats?.tasks.failed ?? client.failed;
 
-  const prev = prevStatsRef.current;
-  const trendTotal = prev && systemStats ? systemStats.tasks.total - prev.tasks.total : null;
-  const trendGen = prev && systemStats ? systemStats.tasks.generating - prev.tasks.generating : null;
-  const trendDone = prev && systemStats ? systemStats.tasks.completed - prev.tasks.completed : null;
-  const trendFail = prev && systemStats ? systemStats.tasks.failed - prev.tasks.failed : null;
+  const trendTotal = prevStats && systemStats ? systemStats.tasks.total - prevStats.tasks.total : null;
+  const trendGen = prevStats && systemStats ? systemStats.tasks.generating - prevStats.tasks.generating : null;
+  const trendDone = prevStats && systemStats ? systemStats.tasks.completed - prevStats.tasks.completed : null;
+  const trendFail = prevStats && systemStats ? systemStats.tasks.failed - prevStats.tasks.failed : null;
 
   const displayName = user?.full_name?.trim() || user?.username?.trim() || '用户';
   const startOfToday = dayjs().startOf('day');

@@ -28,7 +28,6 @@ const LOGO_SRC = `${import.meta.env.BASE_URL}logo.png`;
 const TITLEBAR_HEIGHT = 34;
 
 function ElectronCustomTitleBar() {
-  const { token } = theme.useToken();
   const [isMaximized, setIsMaximized] = useState(false);
   const [hoveredBtn, setHoveredBtn] = useState<string | null>(null);
   const d = window.gameartDesktop;

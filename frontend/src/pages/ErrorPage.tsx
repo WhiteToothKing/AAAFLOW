@@ -2,7 +2,7 @@ import { Button, Result, Typography, Space } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { HomeOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 
-import { brandColors, gradients, shadows } from '../designTokens';
+import { brandColors, shadows } from '../designTokens';
 
 const { Text } = Typography;
 

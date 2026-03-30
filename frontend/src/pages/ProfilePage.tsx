@@ -5,7 +5,6 @@ import {
 import { LockOutlined, BarChartOutlined, SafetyOutlined, EditOutlined } from '@ant-design/icons';
 import { useAuth } from '../hooks/useAuth';
 import api, { taskApi } from '../services/api';
-import type { ArtTask } from '../types';
 import { TaskStatus as TS } from '../types';
 import { brandColors, gradients, shadows } from '../designTokens';
 

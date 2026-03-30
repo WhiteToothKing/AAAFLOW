@@ -25,7 +25,7 @@ import { authApi, setApiBaseUrl, getApiBaseUrl } from '../services/api';
 import { setAccessToken, getAccessToken } from '../services/authStorage';
 import { shellPageBackground } from '../utils/clientChrome';
 import { isAuthDisabled } from '../utils/authMode';
-import { brandColors, gradients, shadows, transitions } from '../designTokens';
+import { brandColors, gradients, transitions } from '../designTokens';
 
 const { Title, Text, Paragraph } = Typography;
 

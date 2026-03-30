@@ -1,5 +1,5 @@
 import { Alert, Button, Skeleton, Space } from 'antd';
-import { brandColors, shadows } from '../designTokens';
+import { shadows } from '../designTokens';
 
 /** 列表页（ProTable）首屏加载骨架 — branded shimmer effect */
 export function ListPageTableSkeleton({ rows = 8 }: { rows?: number }) {

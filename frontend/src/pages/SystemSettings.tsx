@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import {
-  Typography, Card, Descriptions, Tag, Spin, Alert, Badge, Button, message, Space, Divider,
+  Typography, Card, Descriptions, Tag, Spin, Alert, Button, Space, Divider,
 } from 'antd';
 import {
   ReloadOutlined, CheckCircleOutlined, CloseCircleOutlined, ApiOutlined,
-  DatabaseOutlined, CloudServerOutlined, SettingOutlined,
+  DatabaseOutlined, CloudServerOutlined,
 } from '@ant-design/icons';
 import { systemApi, type SystemStatsResponse } from '../services/api';
-import { brandColors, gradients, shadows } from '../designTokens';
+import { brandColors } from '../designTokens';
 
 const { Title, Text } = Typography;
 

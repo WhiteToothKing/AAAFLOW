@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
-  Typography, Card, List, Tag, Badge, Empty, Button, Space, Segmented, Spin,
+  Typography, Card, List, Tag, Badge, Empty, Button, Space, Segmented,
 } from 'antd';
 import {
   BellOutlined, CheckCircleOutlined, InfoCircleOutlined, ExclamationCircleOutlined,
-  CloseCircleOutlined, CheckOutlined, DeleteOutlined,
+  CloseCircleOutlined, CheckOutlined,
 } from '@ant-design/icons';
 import { brandColors, shadows } from '../designTokens';
 

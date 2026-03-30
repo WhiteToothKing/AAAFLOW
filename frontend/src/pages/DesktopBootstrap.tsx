@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Layout, Card, Button, Space, Typography, Alert, Input, theme, Divider,
 } from 'antd';
@@ -29,24 +29,20 @@ export default function DesktopBootstrap() {
 
   const api = typeof window !== 'undefined' ? window.aaaflowLauncher : undefined;
 
-  const refreshRepo = useCallback(async () => {
-    if (!api) return;
-    const r = await api.getRepoRoot();
-    if (r?.ok && r.path) {
-      setRepoLine(`项目根目录: ${r.path}`);
-      setRepoOk(true);
-    } else {
-      setRepoLine(
-        r?.message ||
-          '未找到 docker-compose.yml。请保留完整解压目录，使 exe 向上能找到项目根目录。',
-      );
-      setRepoOk(false);
-    }
-  }, [api]);
-
   useEffect(() => {
-    void refreshRepo();
-  }, [refreshRepo]);
+    if (!api) return;
+    void api.getRepoRoot().then((r) => {
+      if (r?.ok && r.path) {
+        setRepoLine(`项目根目录: ${r.path}`);
+        setRepoOk(true);
+      } else {
+        setRepoLine(
+          r?.message || '未找到 docker-compose.yml。请保留完整解压目录，使 exe 向上能找到项目根目录。',
+        );
+        setRepoOk(false);
+      }
+    });
+  }, [api]);
 
   useEffect(() => {
     if (!api) return;
