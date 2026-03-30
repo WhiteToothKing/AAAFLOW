@@ -22,9 +22,8 @@
    [Figma Account → Settings → Security](https://www.figma.com/settings) 创建 token。
 
 2. **文件 Key**  
-   浏览器打开设计文件，URL 形如：  
-   `https://www.figma.com/design/XXXXXXXXXXXX/文件名`  
-   其中 **`XXXXXXXXXXXX`** 即为 `FIGMA_FILE_KEY`。
+   AAAFLOW 官方设计文件： **[AAAFLOW-Design](https://www.figma.com/design/rannItWO6RPfTCAgOHmjM6/AAAFLOW-Design)**，`FIGMA_FILE_KEY` = **`rannItWO6RPfTCAgOHmjM6`**（与 `scripts/figma.env.example`、`frontend/src/config/figmaProject.ts` 一致）。  
+   其他文件仍可从浏览器地址栏读取：`https://www.figma.com/design/XXXXXXXXXXXX/文件名` 中 **`XXXXXXXXXXXX`** 即为 key。
 
 3. **环境变量**（`scripts/figma-sync.mjs` 会依次读取 `backend/.env` → 根目录 `.env` → `frontend/.env` → `frontend/.env.local`，**后者覆盖前者**；这些文件均勿提交 Git）  
    可复制 `scripts/figma.env.example` 中的键名到**任一会被读取的文件**（常见：根目录 `.env` 或 `backend/.env`）：

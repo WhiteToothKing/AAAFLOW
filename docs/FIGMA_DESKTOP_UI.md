@@ -9,9 +9,8 @@
 1. **线框本来就非常少**  
    当时通过 Vibma 只放了 **3 个节点**：一块 1120×800 的灰底壳、一条顶栏占位、一行小字说明。没有画完整界面、没有组件库，画布上看起来会像「几乎空的」，容易误以为没做。
 
-2. **文件不一定在你当前看的那个 Figma 里**  
-   草稿会出现在 **当时登录 Figma 的账号** 下。请在 Figma 左侧 **Drafts（草稿）** 里用搜索找 **`AAAFLOW Design`**；若 Vibma 用的是另一个邮箱/团队，需要切换到那个账号再看。  
-   **本仓库没有保存该文件的 Figma 链接或 file key**，我无法从这里替你打开确切 URL。
+2. **设计文件地址（团队确认）**  
+   官方稿：[AAAFLOW-Design](https://www.figma.com/design/rannItWO6RPfTCAgOHmjM6/AAAFLOW-Design)（file key `rannItWO6RPfTCAgOHmjM6`）。应用内 **`/design/figma`** 页可一键打开；`FIGMA_FILE_KEY` 默认值见 `scripts/figma.env.example`。若你本地仍打不开，请确认已登录有权限的 Figma 账号。
 
 3. **真正成体系的「进展」在代码里**  
    侧栏、工作台、任务、对话等已在 `frontend` 用 React + Ant Design Pro 搭好（见下文「与代码的对应关系」）。Figma 仅作可选线框参考，不是主交付物。

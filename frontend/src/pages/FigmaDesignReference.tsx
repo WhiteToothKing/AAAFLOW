@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
-import { Typography, Alert, Image, Table, Tag, Space } from 'antd';
-import { LayoutOutlined } from '@ant-design/icons';
+import { Typography, Alert, Image, Table, Tag, Space, Button } from 'antd';
+import { ExportOutlined, LayoutOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -10,6 +10,7 @@ import {
   FIGMA_PARITY_TIER_LABEL,
   type FigmaParityTier,
 } from '../config/figmaFeatureMatrix';
+import { FIGMA_DESIGN_FILE_KEY, FIGMA_DESIGN_URL, FIGMA_NODE_LOGIN_SHARED, figmaFileUrl } from '../config/figmaProject';
 
 const PNG_MAIN = `${import.meta.env.BASE_URL}figma/aaaflow-main-shell.png`;
 const PNG_SCREENS = `${import.meta.env.BASE_URL}figma/aaaflow-client-screens.png`;
@@ -56,7 +57,25 @@ export default function FigmaDesignReference() {
         </Space>
       }
       subTitle="功能路由与 Figma 画布命名建议 · 壳层与 PNG 同步说明"
+      extra={
+        <Space wrap>
+          <Button type="primary" href={FIGMA_DESIGN_URL} target="_blank" rel="noreferrer" icon={<ExportOutlined />}>
+            在 Figma 中打开设计文件
+          </Button>
+          <Button href={figmaFileUrl(FIGMA_NODE_LOGIN_SHARED)} target="_blank" rel="noreferrer" icon={<ExportOutlined />}>
+            打开登录页节点
+          </Button>
+        </Space>
+      }
     >
+      <Typography.Paragraph type="secondary" style={{ marginTop: -8 }}>
+        官方文件：{' '}
+        <Typography.Link href={FIGMA_DESIGN_URL} target="_blank" rel="noreferrer">
+          AAAFLOW-Design
+        </Typography.Link>
+        （file key <Typography.Text code>{FIGMA_DESIGN_FILE_KEY}</Typography.Text>
+        ）；REST 同步仍需在本机配置 <Typography.Text code>FIGMA_ACCESS_TOKEN</Typography.Text>。
+      </Typography.Paragraph>
       <Alert
         type="warning"
         showIcon
@@ -88,7 +107,7 @@ export default function FigmaDesignReference() {
         showIcon
         style={{ marginBottom: 16 }}
         message="如何更新参照图"
-        description="配置 FIGMA_ACCESS_TOKEN、FIGMA_FILE_KEY（及可选 FIGMA_CLIENT_SCREENS_NODE_ID）后，在 frontend 目录执行 npm run figma:sync，或手动替换 public/figma/ 下文件。详见 docs/FIGMA_TO_APP_PIPELINE.md。"
+        description="配置 FIGMA_ACCESS_TOKEN（必填）；FIGMA_FILE_KEY 默认与官方稿一致（见 scripts/figma.env.example）；可选 FIGMA_CLIENT_SCREENS_NODE_ID。在 frontend 目录执行 npm run figma:sync，或手动替换 public/figma/ 下文件。详见 docs/FIGMA_TO_APP_PIPELINE.md。"
       />
       <Typography.Title level={5}>主界面壳（Page 1 · Desktop Shell）</Typography.Title>
       <Typography.Paragraph type="secondary" style={{ marginTop: -8 }}>

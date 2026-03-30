@@ -1,6 +1,6 @@
 /**
  * 应用路由 ↔ Figma 画布建议命名 ↔ 落地方式（单一事实来源，供 /design/figma 与走查使用）
- * 主壳节点见 docs/FIGMA_AAAFLOW_SHELL.md；整页对照 PNG 见 FIGMA_CLIENT_SCREENS_NODE_ID。
+ * 设计文件 URL / file key：figmaProject.ts；主壳节点见 docs/FIGMA_AAAFLOW_SHELL.md；整页对照 PNG 见 FIGMA_CLIENT_SCREENS_NODE_ID。
  */
 export type FigmaParityTier =
   | 'shell-synced'

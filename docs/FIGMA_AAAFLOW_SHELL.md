@@ -1,5 +1,7 @@
 # AAAFLOW 主壳（Figma Page 1）
 
+**设计文件**：[AAAFLOW-Design](https://www.figma.com/design/rannItWO6RPfTCAgOHmjM6/AAAFLOW-Design)（`rannItWO6RPfTCAgOHmjM6`）。
+
 ## 画板
 
 - **页面**：`Page 1`
