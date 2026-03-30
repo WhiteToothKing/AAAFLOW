@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "Vibma": {
+      "command": "npx",
+      "args": ["-y", "@ufira/vibma", "--edit", "--port=3055"]
+    }
+  }
+}

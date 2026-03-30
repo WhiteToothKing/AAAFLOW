@@ -1,0 +1,88 @@
+{
+  "name": "gameart-ai-frontend",
+  "description": "AAAFLOW game art AI assistant desktop client",
+  "author": "AAAFLOW",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "homepage": "./",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "build:desktop": "tsc -b && vite build --mode desktop",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "electron:dev": "concurrently -k \"cross-env BROWSER=none npm run dev\" \"wait-on http://127.0.0.1:3000 && cross-env ELECTRON_DEV=1 electron .\"",
+    "electron:dev:bootstrap": "concurrently -k \"cross-env BROWSER=none npm run dev\" \"wait-on http://127.0.0.1:3000 && cross-env ELECTRON_DEV=1 AAAFLOW_BOOTSTRAP=1 electron .\"",
+    "electron:pack": "npm run build:desktop && electron-builder --win",
+    "figma:export": "node ../scripts/figma-sync.mjs export",
+    "figma:layout": "node ../scripts/figma-sync.mjs layout",
+    "figma:sync": "node ../scripts/figma-sync.mjs all"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^6.1.1",
+    "@ant-design/pro-components": "^2.8.10",
+    "antd": "^5.29.3",
+    "axios": "^1.14.0",
+    "dayjs": "^1.11.20",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^7.13.2",
+    "zustand": "^5.0.12"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@types/node": "^24.12.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "^34.0.2",
+    "electron-builder": "^25.1.8",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.0",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.4.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.57.0",
+    "vite": "^8.0.1",
+    "wait-on": "^8.0.1"
+  },
+  "build": {
+    "appId": "com.aaaflow.desktop",
+    "productName": "AAAFLOW",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json",
+      "public/logo.png"
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        "nsis",
+        "dir"
+      ],
+      "icon": "public/logo.png",
+      "artifactName": "${productName}-Setup-${version}.${ext}",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "AAAFLOW",
+      "deleteAppDataOnUninstall": false
+    },
+    "dmg": {
+      "title": "AAAFLOW ${version}"
+    }
+  }
+}

@@ -1,0 +1,46 @@
+# 在 GitHub 上构建 Windows 安装包（NSIS），产物上传到 Workflow artifacts；
+# 推送 v* 标签时额外发布到 GitHub Release（附件 exe，便于从「发行版」下载而无需把大文件提交进主分支）。
+name: Desktop Windows installer
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-installer:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install & pack
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run electron:pack
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aaaflow-windows-${{ github.sha }}
+          path: |
+            frontend/release/*.exe
+          if-no-files-found: error
+
+      - name: Publish Release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: frontend/release/*.exe
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,23 @@
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.env
+backend/venv/
+**/node_modules/
+frontend/release/
+*.db
+uploads/
+outputs/
+
+.DS_Store
+*.log
+tmp-pack/
+
+.vscode/
+.idea/
+
+# MCP secrets (paste your config locally; never commit)
+.cursor/mcp.json

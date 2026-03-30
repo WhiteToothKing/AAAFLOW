@@ -1,0 +1,73 @@
+================================================================================
+  AAAFLOW — 第一次使用请看这里（不用懂编程）
+================================================================================
+
+【Docker 是什么？和我有什么关系？】
+  你可以把它理解成：电脑上需要装一个免费软件，名字叫「Docker Desktop」，
+  图标是「小鲸鱼」。装好之后，AAAFLOW 的「后台」才能在你自己电脑上跑起来。
+  你不需要会用它，只要装一次、打开它，以后双击我们的启动脚本即可。
+
+【我已经有 Docker 了，打开后全是英文不知道点哪？】
+  你只要认三件事，其它都不用管：
+  1）左下角写着 Engine running（引擎运行中）并有绿色图标 = Docker 正常工作。
+  2）点左边菜单「Containers」（容器），列表里若有 AAAFLOW / aaaflow 相关名字，
+     左边是绿色圆点 = 后台正在跑。你不用去点 Stop、不要随手删容器。
+  3）平时真正用 AAAFLOW，根本不用在 Docker 里操作——下面用浏览器或桌面软件打开即可。
+
+【装好后，去哪里打开 AAAFLOW 界面？】
+  · 最推荐：图形界面客户端，不要依赖黑色 CMD。
+        1）在 frontend 文件夹打开终端，执行（只需做一次）：
+             npm install
+             npm run electron:pack
+        2）之后日常使用：双击
+             frontend\release\win-unpacked\AAAFLOW.exe
+           会弹出「AAAFLOW 启动台」窗口，在窗口里点「启动后台 (Docker)」、看日志；
+           后端就绪后会自动进入对话主界面。请保留完整解压目录（exe 向上能找到 docker-compose.yml）。
+  · 若暂时没有 exe：仍可用根目录的 AAAFLOW.bat（会尽量自动打开已打包的 exe 或浏览器）。
+  · 网页版：http://localhost:3000  或 AAAFLOW-Browser.bat
+  · 接口说明：http://localhost:8000/docs
+
+【你要做的只有这几步】
+  1）下载并安装 Docker Desktop（小鲸鱼）：
+     https://www.docker.com/products/docker-desktop/
+     安装完成后，最好「注销或重启一次电脑」，再往下做。
+
+  2）打开桌面右下角的小鲸鱼图标，等它变成「正在运行」（就绪）。
+
+  3）在本文件夹里双击以下任意一个（效果相同）：
+        AAAFLOW.bat  或  启动AAAFLOW.bat  或  启动GameArtAI.bat
+
+  4）第一次往往会先弹出记事本（backend\.env）：
+        把 ANTHROPIC_API_KEY= 后面改成你的真密钥，点【文件】→【保存】，关掉记事本，
+        回到黑色窗口按一次【回车】—— 才会真正启动 Docker 和网页。
+        （以前的设计是让你再双击一次脚本，容易误会；现在改为按回车继续。）
+
+  5）黑色窗口是在拉 Docker 镜像、启动数据库等，第一次会较久；完成后会自动弹出
+     「AAAFLOW」桌面窗口（若你已按上文打包/安装过客户端），否则会打开浏览器。
+     以后只要小鲸鱼在跑，也可只双击 AAAFLOW-ClientOnly.bat 单独开客户端界面。
+
+【localhost:3000 打不开、提示拒绝连接？】
+  多半是「后台还没启动完」或「只弹了记事本就关掉了窗口」。
+  请重新双击 AAAFLOW.bat，看黑色窗口是否跑完；也可在 Docker Desktop 里确认
+  是否有 frontend / backend 等容器在运行（不是只有 postgres）。
+
+【黑窗口里出现 registry-1.docker.io、connectex、拉镜像失败 / 超时？】
+  这说明你这台电脑访问 Docker 官方镜像站（在国外）不通，常见于公司网络或部分地区。
+  任选其一即可：
+  A）在能访问外网的环境（例如家里宽带、手机热点）再执行一次 AAAFLOW.bat；
+  B）使用公司允许的 VPN / 代理后，在 Docker Desktop → Settings → Resources → Proxies
+     里按说明填写 HTTPS 代理，再重试；
+  C）配置国内镜像加速：打开 Docker Desktop → 右上角齿轮 Settings → Docker Engine，
+     在 JSON 里增加一行（注意逗号，和前后大括号格式要合法），例如：
+       "registry-mirrors": ["https://docker.m.daocloud.io"]
+     点 Apply & restart，等 Docker 重启后再双击 AAAFLOW.bat。
+     （不同地区可用的镜像地址会变，若一个不行可搜索「Docker 镜像加速 2025」换别的。）
+
+【黑窗口第一行乱码、提示「不是内部或外部命令」？】
+  多半是旧版 .bat 里写了中文注释，CMD 用 GBK 读 UTF-8 会误把注释当成命令。
+  请用我们最新包里的 AAAFLOW.bat（注释已改为英文），或删掉 .bat 里带中文的 REM 行。
+
+【还是不会？】
+  把启动窗口里的英文报错截图发给懂一点电脑的同事，或联系你们的技术支持。
+
+================================================================================
