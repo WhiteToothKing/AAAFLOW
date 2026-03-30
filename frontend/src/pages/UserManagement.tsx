@@ -1,16 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-  Typography, Button, Table, Tag, Space, Modal, Form, Input, Select, message, Avatar, Badge,
+  Button, Table, Tag, Space, Modal, Form, Input, Select, message, Avatar, Badge,
 } from 'antd';
 import {
-  PlusOutlined, EditOutlined, StopOutlined, UserOutlined, SearchOutlined,
+  PlusOutlined, EditOutlined, StopOutlined, UserOutlined, SearchOutlined, TeamOutlined,
 } from '@ant-design/icons';
+import { PageContainer } from '@ant-design/pro-components';
 import type { ColumnsType } from 'antd/es/table';
 import type { AuthUser } from '../types';
 import { userApi } from '../services/api';
 import { brandColors } from '../designTokens';
-
-const { Title } = Typography;
 
 const ROLE_MAP: Record<string, { label: string; color: string }> = {
   admin: { label: '管理员', color: 'blue' },
@@ -135,9 +134,18 @@ export default function UserManagement() {
   ];
 
   return (
-    <div className="animate-fade-in-up" style={{ maxWidth: 1200, margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <Title level={4} style={{ margin: 0 }}>用户管理</Title>
+    <PageContainer
+      className="animate-fade-in-up"
+      ghost
+      breadcrumbRender={false}
+      title={
+        <Space>
+          <TeamOutlined />
+          用户管理
+        </Space>
+      }
+      subTitle="维护组织内账号、角色与启用状态"
+      extra={
         <Space>
           <Input
             placeholder="搜索用户名/邮箱"
@@ -151,7 +159,8 @@ export default function UserManagement() {
             新建用户
           </Button>
         </Space>
-      </div>
+      }
+    >
       <Table
         rowKey="id"
         columns={columns}
@@ -198,6 +207,6 @@ export default function UserManagement() {
           )}
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   );
 }

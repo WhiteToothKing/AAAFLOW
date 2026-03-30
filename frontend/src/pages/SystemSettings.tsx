@@ -4,12 +4,13 @@ import {
 } from 'antd';
 import {
   ReloadOutlined, CheckCircleOutlined, CloseCircleOutlined, ApiOutlined,
-  DatabaseOutlined, CloudServerOutlined,
+  DatabaseOutlined, CloudServerOutlined, ControlOutlined,
 } from '@ant-design/icons';
+import { PageContainer } from '@ant-design/pro-components';
 import { systemApi, type SystemStatsResponse } from '../services/api';
 import { brandColors } from '../designTokens';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 interface SystemConfig {
   app_name: string;
@@ -60,21 +61,57 @@ export default function SystemSettings() {
 
   useEffect(() => { void load(); }, []);
 
-  if (loading) return <div style={{ textAlign: 'center', padding: 80 }}><Spin size="large" /></div>;
-  if (error) return <Alert type="error" message={error} showIcon style={{ margin: 24 }} />;
+  if (loading) {
+    return (
+      <PageContainer
+        ghost
+        breadcrumbRender={false}
+        title={
+          <Space>
+            <ControlOutlined />
+            系统设置
+          </Space>
+        }
+        subTitle="查看当前服务器运行配置（只读）"
+      >
+        <div style={{ textAlign: 'center', padding: 80 }}><Spin size="large" /></div>
+      </PageContainer>
+    );
+  }
+  if (error) {
+    return (
+      <PageContainer
+        ghost
+        breadcrumbRender={false}
+        title={
+          <Space>
+            <ControlOutlined />
+            系统设置
+          </Space>
+        }
+        subTitle="查看当前服务器运行配置（只读）"
+      >
+        <Alert type="error" message={error} showIcon />
+      </PageContainer>
+    );
+  }
   if (!config) return null;
 
   return (
-    <div className="animate-fade-in-up" style={{ maxWidth: 1000, margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <div>
-          <Title level={4} style={{ margin: 0 }}>系统设置</Title>
-          <Text type="secondary">查看当前服务器运行配置（只读）</Text>
-        </div>
-        <Button icon={<ReloadOutlined />} onClick={() => void load()}>刷新</Button>
-      </div>
-
-      <Space direction="vertical" size={20} style={{ width: '100%' }}>
+    <PageContainer
+      className="animate-fade-in-up"
+      ghost
+      breadcrumbRender={false}
+      title={
+        <Space>
+          <ControlOutlined />
+          系统设置
+        </Space>
+      }
+      subTitle="查看当前服务器运行配置（只读）"
+      extra={<Button icon={<ReloadOutlined />} onClick={() => void load()}>刷新</Button>}
+    >
+      <Space direction="vertical" size={20} style={{ width: '100%', maxWidth: 1000 }}>
         {/* System Info */}
         <Card
           title={<Space><DatabaseOutlined style={{ color: brandColors.primary }} /> 系统信息</Space>}
@@ -156,6 +193,6 @@ export default function SystemSettings() {
           </Descriptions>
         </Card>
       </Space>
-    </div>
+    </PageContainer>
   );
 }

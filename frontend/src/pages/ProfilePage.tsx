@@ -2,7 +2,8 @@ import { useState, useCallback, useEffect } from 'react';
 import {
   Typography, Card, Avatar, Tag, Tabs, Form, Input, Button, message, Space, Statistic, Row, Col, Spin,
 } from 'antd';
-import { LockOutlined, BarChartOutlined, SafetyOutlined, EditOutlined } from '@ant-design/icons';
+import { LockOutlined, BarChartOutlined, SafetyOutlined, EditOutlined, UserOutlined } from '@ant-design/icons';
+import { PageContainer } from '@ant-design/pro-components';
 import { useAuth } from '../hooks/useAuth';
 import api, { taskApi } from '../services/api';
 import { TaskStatus as TS } from '../types';
@@ -46,7 +47,13 @@ export default function ProfilePage() {
 
   useEffect(() => { void loadStats(); }, [loadStats]);
 
-  if (userLoading) return <div style={{ textAlign: 'center', padding: 80 }}><Spin size="large" /></div>;
+  if (userLoading) {
+    return (
+      <PageContainer ghost breadcrumbRender={false} title={<Space><UserOutlined />个人中心</Space>} subTitle="资料、安全与任务统计">
+        <div style={{ textAlign: 'center', padding: 80 }}><Spin size="large" /></div>
+      </PageContainer>
+    );
+  }
   if (!user) return null;
 
   const handleProfileSave = async () => {
@@ -85,8 +92,19 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="animate-fade-in-up" style={{ maxWidth: 800, margin: '0 auto' }}>
-      {/* Profile Hero */}
+    <PageContainer
+      className="animate-fade-in-up"
+      ghost
+      breadcrumbRender={false}
+      title={
+        <Space>
+          <UserOutlined />
+          个人中心
+        </Space>
+      }
+      subTitle="资料、安全与任务统计"
+    >
+      <div style={{ maxWidth: 800 }}>
       <Card
         style={{
           borderRadius: 16, marginBottom: 24, overflow: 'hidden',
@@ -189,6 +207,7 @@ export default function ProfilePage() {
           },
         ]}
       />
-    </div>
+      </div>
+    </PageContainer>
   );
 }

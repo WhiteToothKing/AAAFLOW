@@ -1,29 +1,88 @@
-import { useState } from 'react';
-import { Typography, Alert, Image } from 'antd';
+import { useState, useMemo } from 'react';
+import { Typography, Alert, Image, Table, Tag, Space } from 'antd';
+import { LayoutOutlined } from '@ant-design/icons';
+import { PageContainer } from '@ant-design/pro-components';
+import type { ColumnsType } from 'antd/es/table';
 
 import { designTokens } from '../designTokens';
+import {
+  figmaFeatureMatrix,
+  FIGMA_PARITY_TIER_LABEL,
+  type FigmaParityTier,
+} from '../config/figmaFeatureMatrix';
 
 const PNG_MAIN = `${import.meta.env.BASE_URL}figma/aaaflow-main-shell.png`;
 const PNG_SCREENS = `${import.meta.env.BASE_URL}figma/aaaflow-client-screens.png`;
 const { antdToken: dt } = designTokens;
 
+const TIER_TAG: Record<FigmaParityTier, string> = {
+  'shell-synced': 'blue',
+  'pro-page': 'green',
+  'custom-page': 'orange',
+  'dev-only': 'default',
+};
+
 export default function FigmaDesignReference() {
   const [mainFailed, setMainFailed] = useState(false);
   const [screensFailed, setScreensFailed] = useState(false);
 
+  const columns: ColumnsType<(typeof figmaFeatureMatrix)[number]> = useMemo(
+    () => [
+      { title: '路由', dataIndex: 'path', key: 'path', width: 130, render: (p) => <Typography.Text code>{p}</Typography.Text> },
+      { title: '页面', dataIndex: 'title', key: 'title', width: 120 },
+      { title: 'Figma 建议帧名', dataIndex: 'figmaSuggestedFrame', key: 'figmaSuggestedFrame', ellipsis: true },
+      {
+        title: '落地方式',
+        dataIndex: 'tier',
+        key: 'tier',
+        width: 130,
+        render: (tier: FigmaParityTier) => (
+          <Tag color={TIER_TAG[tier]}>{FIGMA_PARITY_TIER_LABEL[tier]}</Tag>
+        ),
+      },
+      { title: '说明', dataIndex: 'notes', key: 'notes', ellipsis: true },
+    ],
+    [],
+  );
+
   return (
-    <div style={{ maxWidth: 1320, margin: '0 auto' }}>
-      <Typography.Title level={4} style={{ marginTop: 0 }}>
-        设计对照（产品已落地 + Figma 静态参照）
-      </Typography.Title>
+    <PageContainer
+      ghost
+      breadcrumbRender={false}
+      title={
+        <Space>
+          <LayoutOutlined />
+          设计对照
+        </Space>
+      }
+      subTitle="功能路由与 Figma 画布命名建议 · 壳层与 PNG 同步说明"
+    >
+      <Alert
+        type="warning"
+        showIcon
+        style={{ marginBottom: 16 }}
+        message="是否「一一对应、完整像素还原」？"
+        description={
+          <>
+            主壳（侧栏宽、顶栏高、背景色）与 <Typography.Text code>npm run figma:sync</Typography.Text> 数值对齐；
+            各业务页为 React + Ant Design 实现，与 Figma 为<strong>结构/Token 级对齐</strong>，不能保证逐像素 1:1（字体渲染、组件内边距等差异见 docs/DESIGN_PARITY.md）。
+            若 Figma「功能界面」画布尚未为某帧建 Frame，表中「建议帧名」即为补稿时的命名约定。
+          </>
+        }
+      />
       <Typography.Paragraph>
-        <strong>可交互界面</strong>即为设计落地：通过侧栏进入工作台、AI 对话、提交需求、任务列表等；桌面壳的侧栏宽、顶栏高与大面积背景色来自{' '}
-        <Typography.Text code>figmaShellLayout</Typography.Text>（运行{' '}
-        <Typography.Text code>npm run figma:sync</Typography.Text> 与 Figma 主壳节点对齐）。
+        <strong>可交互界面</strong>即产品落地：侧栏入口与路由一一对应下表；壳层量来自{' '}
+        <Typography.Text code>figmaShellLayout</Typography.Text>。
       </Typography.Paragraph>
-      <Typography.Paragraph type="secondary">
-        下方 PNG 由 Figma API 导出，用于和画布逐屏对比像素与版式；业务数据、表单与列表行为以当前应用为准。
-      </Typography.Paragraph>
+      <Table
+        size="small"
+        rowKey="path"
+        columns={columns}
+        dataSource={figmaFeatureMatrix}
+        pagination={false}
+        style={{ marginBottom: 24 }}
+        scroll={{ x: 900 }}
+      />
       <Alert
         type="info"
         showIcon
@@ -83,6 +142,6 @@ export default function FigmaDesignReference() {
           onError={() => setScreensFailed(true)}
         />
       )}
-    </div>
+    </PageContainer>
   );
 }

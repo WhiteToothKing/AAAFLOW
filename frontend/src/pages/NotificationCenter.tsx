@@ -6,9 +6,10 @@ import {
   BellOutlined, CheckCircleOutlined, InfoCircleOutlined, ExclamationCircleOutlined,
   CloseCircleOutlined, CheckOutlined,
 } from '@ant-design/icons';
+import { PageContainer } from '@ant-design/pro-components';
 import { brandColors, shadows } from '../designTokens';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 interface Notification {
   id: string;
@@ -89,17 +90,25 @@ export default function NotificationCenter() {
   const markAllRead = () => setLocalRead(new Set(notifications.map((n) => n.id)));
 
   return (
-    <div className="animate-fade-in-up" style={{ maxWidth: 800, margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <Space>
-          <Title level={4} style={{ margin: 0 }}>通知中心</Title>
-          {unreadCount > 0 && <Badge count={unreadCount} />}
+    <PageContainer
+      className="animate-fade-in-up"
+      ghost
+      breadcrumbRender={false}
+      title={
+        <Space align="center">
+          <BellOutlined />
+          <span>通知中心</span>
+          {unreadCount > 0 ? <Badge count={unreadCount} /> : null}
         </Space>
+      }
+      subTitle="任务状态 WebSocket 实时推送"
+      extra={
         <Button size="small" icon={<CheckOutlined />} disabled={unreadCount === 0} onClick={markAllRead}>
           全部已读
         </Button>
-      </div>
-
+      }
+    >
+      <div style={{ maxWidth: 800 }}>
       <Segmented
         value={filter}
         onChange={(v) => setFilter(v as string)}
@@ -167,6 +176,7 @@ export default function NotificationCenter() {
           }}
         />
       )}
-    </div>
+      </div>
+    </PageContainer>
   );
 }
