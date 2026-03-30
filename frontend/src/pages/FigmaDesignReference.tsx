@@ -10,7 +10,14 @@ import {
   FIGMA_PARITY_TIER_LABEL,
   type FigmaParityTier,
 } from '../config/figmaFeatureMatrix';
-import { FIGMA_DESIGN_FILE_KEY, FIGMA_DESIGN_URL, FIGMA_NODE_LOGIN_SHARED, figmaFileUrl } from '../config/figmaProject';
+import {
+  FIGMA_CONTENT_MAX_WIDTH_PX,
+  FIGMA_DESIGN_FILE_KEY,
+  FIGMA_DESIGN_URL,
+  FIGMA_NODE_LOGIN_SHARED,
+  figmaFileUrl,
+} from '../config/figmaProject';
+import { figmaShellLayout } from '../generated/figmaShellLayout';
 
 const PNG_MAIN = `${import.meta.env.BASE_URL}figma/aaaflow-main-shell.png`;
 const PNG_SCREENS = `${import.meta.env.BASE_URL}figma/aaaflow-client-screens.png`;
@@ -29,14 +36,29 @@ export default function FigmaDesignReference() {
 
   const columns: ColumnsType<(typeof figmaFeatureMatrix)[number]> = useMemo(
     () => [
-      { title: '路由', dataIndex: 'path', key: 'path', width: 130, render: (p) => <Typography.Text code>{p}</Typography.Text> },
-      { title: '页面', dataIndex: 'title', key: 'title', width: 120 },
+      { title: '路由', dataIndex: 'path', key: 'path', width: 128, render: (p) => <Typography.Text code>{p}</Typography.Text> },
+      { title: '页面', dataIndex: 'title', key: 'title', width: 108 },
+      {
+        title: '应用端',
+        dataIndex: 'appImplemented',
+        key: 'appImplemented',
+        width: 76,
+        render: (v: boolean) => (v ? <Tag color="success">已落地</Tag> : <Tag>未实现</Tag>),
+      },
+      {
+        title: 'Figma 建帧',
+        dataIndex: 'figmaFrameRecommended',
+        key: 'figmaFrameRecommended',
+        width: 96,
+        render: (v: boolean) =>
+          v ? <Tag color="processing">建议</Tag> : <Tag color="default">—</Tag>,
+      },
       { title: 'Figma 建议帧名', dataIndex: 'figmaSuggestedFrame', key: 'figmaSuggestedFrame', ellipsis: true },
       {
-        title: '落地方式',
+        title: '代码落地方式',
         dataIndex: 'tier',
         key: 'tier',
-        width: 130,
+        width: 128,
         render: (tier: FigmaParityTier) => (
           <Tag color={TIER_TAG[tier]}>{FIGMA_PARITY_TIER_LABEL[tier]}</Tag>
         ),
@@ -77,15 +99,22 @@ export default function FigmaDesignReference() {
         ）；REST 同步仍需在本机配置 <Typography.Text code>FIGMA_ACCESS_TOKEN</Typography.Text>。
       </Typography.Paragraph>
       <Alert
+        type="success"
+        showIcon
+        style={{ marginBottom: 12 }}
+        message="应用端（客户端）"
+        description="下表所列路由在程序里均有可交互页面，与侧栏菜单一致；主内容区常见最大宽度可走查约 1320px（FIGMA_CONTENT_MAX_WIDTH_PX）。"
+      />
+      <Alert
         type="warning"
         showIcon
         style={{ marginBottom: 16 }}
-        message="是否「一一对应、完整像素还原」？"
+        message="Figma 画布是否「一一对应」？是否「完整像素还原」？"
         description={
           <>
-            主壳（侧栏宽、顶栏高、背景色）与 <Typography.Text code>npm run figma:sync</Typography.Text> 数值对齐；
-            各业务页为 React + Ant Design 实现，与 Figma 为<strong>结构/Token 级对齐</strong>，不能保证逐像素 1:1（字体渲染、组件内边距等差异见 docs/DESIGN_PARITY.md）。
-            若 Figma「功能界面」画布尚未为某帧建 Frame，表中「建议帧名」即为补稿时的命名约定。
+            <strong>一一对应</strong>：仅当文件中为每个「建议建帧」的功能都建有可识别 Frame，并与命名大致一致时，设计稿才算与功能清单对齐；表中「Figma 建帧」为「—」的项不要求单独画板。
+            <br />
+            <strong>完整还原</strong>：主壳与 <Typography.Text code>figma:sync</Typography.Text> PNG 可对齐；业务页为 Ant Design 实现，与稿为<strong>结构 / Token 级</strong>一致，不承诺整站逐像素 1:1（详见 docs/DESIGN_PARITY.md）。
           </>
         }
       />
@@ -93,15 +122,17 @@ export default function FigmaDesignReference() {
         <strong>可交互界面</strong>即产品落地：侧栏入口与路由一一对应下表；壳层量来自{' '}
         <Typography.Text code>figmaShellLayout</Typography.Text>。
       </Typography.Paragraph>
-      <Table
-        size="small"
-        rowKey="path"
-        columns={columns}
-        dataSource={figmaFeatureMatrix}
-        pagination={false}
-        style={{ marginBottom: 24 }}
-        scroll={{ x: 900 }}
-      />
+      <div style={{ maxWidth: FIGMA_CONTENT_MAX_WIDTH_PX }}>
+        <Table
+          size="small"
+          rowKey="path"
+          columns={columns}
+          dataSource={figmaFeatureMatrix}
+          pagination={false}
+          style={{ marginBottom: 24 }}
+          scroll={{ x: 1100 }}
+        />
+      </div>
       <Alert
         type="info"
         showIcon
@@ -109,10 +140,13 @@ export default function FigmaDesignReference() {
         message="如何更新参照图"
         description="配置 FIGMA_ACCESS_TOKEN（必填）；FIGMA_FILE_KEY 默认与官方稿一致（见 scripts/figma.env.example）；可选 FIGMA_CLIENT_SCREENS_NODE_ID。在 frontend 目录执行 npm run figma:sync，或手动替换 public/figma/ 下文件。详见 docs/FIGMA_TO_APP_PIPELINE.md。"
       />
-      <Typography.Title level={5}>主界面壳（Page 1 · Desktop Shell）</Typography.Title>
+      <Typography.Title level={5}>主界面壳（Desktop Shell）</Typography.Title>
       <Typography.Paragraph type="secondary" style={{ marginTop: -8 }}>
-        默认节点 <Typography.Text code>20:263496</Typography.Text> →{' '}
+        当前 <Typography.Text code>figmaShellLayout.sourceNodeId</Typography.Text>：{' '}
+        <Typography.Text code>{figmaShellLayout.sourceNodeId}</Typography.Text> →{' '}
         <Typography.Text code>aaaflow-main-shell.png</Typography.Text>
+        （由 <Typography.Text code>FIGMA_SHELL_NODE_ID</Typography.Text> 与{' '}
+        <Typography.Text code>npm run figma:sync</Typography.Text> 生成；与官方稿不一致时请改 .env 后重新同步。）
       </Typography.Paragraph>
       {mainFailed ? (
         <Alert

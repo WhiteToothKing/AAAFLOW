@@ -11,6 +11,9 @@ export const FIGMA_DESIGN_URL = `https://www.figma.com/design/${FIGMA_DESIGN_FIL
 /** 分享链接中的登录页节点（node-id=234-417840 → API 格式 234:417840） */
 export const FIGMA_NODE_LOGIN_SHARED = '234:417840' as const;
 
+/** 主内容区与对照页推荐最大宽度（与 1280 壳宽配套走查） */
+export const FIGMA_CONTENT_MAX_WIDTH_PX = 1320;
+
 /** 生成带节点深链的 Figma URL（nodeId 形如 `20:263496` 或 `234:417840`） */
 export function figmaFileUrl(nodeId?: string): string {
   if (!nodeId) return FIGMA_DESIGN_URL;

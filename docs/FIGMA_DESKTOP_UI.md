@@ -52,7 +52,7 @@
 | 对话区 / 历史抽屉 / 输入区 | `frontend/src/pages/ChatWorkspace.tsx`（`embeddedDesktop`） |
 | Electron 窗口与启动后台页 | `frontend/electron/main.cjs`；界面为 React 路由 `#/bootstrap`（Ant Design，与主壳一致） |
 
-**全量路由 ↔ 建议在 Figma 对照画布中的帧名**：见应用内 **`/design/figma`** 顶部对照表；数据定义在 `frontend/src/config/figmaFeatureMatrix.ts`。Figma 里若尚未为某功能单独建 Frame，可按表中「建议帧名」补画以便与 PNG 导出对齐。
+**全量路由 ↔ 建议在 Figma 对照画布中的帧名**：见应用内 **`/design/figma`** 对照表（含「应用端已落地」「Figma 建帧建议」列）；数据定义在 `frontend/src/config/figmaFeatureMatrix.ts`。Figma 里若尚未为某功能单独建 Frame，可按表中「建议帧名」补画以便与 PNG 导出对齐。
 
 ## Windows 安装包
 
