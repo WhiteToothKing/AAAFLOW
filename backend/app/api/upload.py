@@ -2,9 +2,11 @@ import os
 import uuid
 import aiofiles
 
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 
 from app.core.config import settings
+from app.models.user import User
+from app.api.deps import get_current_user
 
 router = APIRouter(prefix="/upload", tags=["upload"])
 
@@ -12,7 +14,7 @@ ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif"}
 
 
 @router.post("")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(file: UploadFile = File(...), user: User = Depends(get_current_user)):
     ext = os.path.splitext(file.filename or "")[1].lower()
     if ext not in ALLOWED_EXTENSIONS:
         raise HTTPException(

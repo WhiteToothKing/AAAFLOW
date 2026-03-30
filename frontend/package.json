@@ -15,7 +15,8 @@
     "preview": "vite preview",
     "electron:dev": "concurrently -k \"cross-env BROWSER=none npm run dev\" \"wait-on http://127.0.0.1:3000 && cross-env ELECTRON_DEV=1 electron .\"",
     "electron:dev:bootstrap": "concurrently -k \"cross-env BROWSER=none npm run dev\" \"wait-on http://127.0.0.1:3000 && cross-env ELECTRON_DEV=1 AAAFLOW_BOOTSTRAP=1 electron .\"",
-    "electron:pack": "npm run build:desktop && electron-builder --win",
+    "electron:build": "vite build && electron-builder --win",
+    "electron:pack": "vite build && electron-builder --dir",
     "figma:export": "node ../scripts/figma-sync.mjs export",
     "figma:layout": "node ../scripts/figma-sync.mjs layout",
     "figma:sync": "node ../scripts/figma-sync.mjs all"
@@ -29,7 +30,8 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router-dom": "^7.13.2",
-    "zustand": "^5.0.12"
+    "zustand": "^5.0.12",
+    "electron-updater": "^6.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
@@ -53,36 +55,56 @@
   "build": {
     "appId": "com.aaaflow.desktop",
     "productName": "AAAFLOW",
+    "artifactName": "AAAFLOW-Setup-${version}.${ext}",
     "directories": {
       "output": "release"
     },
     "files": [
       "dist/**/*",
-      "electron/**/*",
-      "package.json",
-      "public/logo.png"
+      "electron/**/*"
     ],
     "asar": true,
+    "asarUnpack": [
+      "electron/preload.cjs"
+    ],
     "win": {
       "target": [
-        "nsis",
-        "dir"
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
       ],
       "icon": "public/logo.png",
-      "artifactName": "${productName}-Setup-${version}.${ext}",
-      "signAndEditExecutable": false
+      "requestedExecutionLevel": "asInvoker"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "allowElevation": true,
+      "installerIcon": "public/logo.png",
+      "uninstallerIcon": "public/logo.png",
+      "installerHeaderIcon": "public/logo.png",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "AAAFLOW",
-      "deleteAppDataOnUninstall": false
+      "perMachine": false,
+      "differentialPackage": true,
+      "allowElevation": true,
+      "installerLanguages": ["zh_CN", "en_US"],
+      "language": "2052"
     },
-    "dmg": {
-      "title": "AAAFLOW ${version}"
-    }
+    "portable": {
+      "artifactName": "AAAFLOW-Portable-${version}.${ext}"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "WhiteToothKing",
+        "repo": "AAAFLOW"
+      }
+    ]
   }
 }

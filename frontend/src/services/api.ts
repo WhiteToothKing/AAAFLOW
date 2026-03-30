@@ -223,4 +223,66 @@ export const healthApi = {
   detailed: () => api.get('/health/detailed').then((r) => r.data),
 };
 
+export interface SystemStatsResponse {
+  tasks: {
+    total: number;
+    pending: number;
+    generating: number;
+    completed: number;
+    failed: number;
+  };
+  users: { total: number };
+  available_providers: unknown[];
+}
+
+export const systemApi = {
+  stats: () => api.get<SystemStatsResponse>('/system/stats').then((r) => r.data),
+  config: () => api.get<Record<string, unknown>>('/system/config').then((r) => r.data),
+};
+
+export interface UserListResponse {
+  users: AuthUser[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export const userApi = {
+  list: (params?: { page?: number; page_size?: number; role?: string }) =>
+    api.get<UserListResponse>('/users', { params }).then((r) => r.data),
+  get: (id: string) => api.get<AuthUser>(`/users/${id}`).then((r) => r.data),
+  create: (data: { username: string; email: string; password: string; full_name?: string; department?: string }) =>
+    api.post<AuthUser>('/users', data).then((r) => r.data),
+  update: (id: string, data: Record<string, unknown>) =>
+    api.patch<AuthUser>(`/users/${id}`, data).then((r) => r.data),
+  deactivate: (id: string) => api.delete(`/users/${id}`),
+  profile: () => api.get<AuthUser>('/users/me/profile').then((r) => r.data),
+};
+
+export interface AuditLogEntry {
+  id: string;
+  user_id?: string;
+  username?: string;
+  action: string;
+  resource_type: string;
+  resource_id?: string;
+  detail?: string;
+  ip_address?: string;
+  created_at: string;
+}
+
+export interface AuditLogPageResponse {
+  logs: AuditLogEntry[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export const auditApiV2 = {
+  list: (params?: { page?: number; page_size?: number; action?: string; resource_type?: string; user_id?: string }) =>
+    api.get<AuditLogPageResponse>('/audit', { params }).then((r) => r.data),
+};
+
 export default api;
+
+export type { AuthUser } from '../types';

@@ -5,13 +5,15 @@ optimized prompt, and routing decision.
 """
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from app.models.task import GenerationMode
+from app.models.user import User
 from app.schemas.task import AIAnalysisResponse
 from app.services.claude_analyzer import claude_analyzer
 from app.services.routing_service import routing_service
+from app.api.deps import get_current_user
 
 router = APIRouter(prefix="/analyze", tags=["analyze"])
 
@@ -38,7 +40,7 @@ class AnalyzeResponse(BaseModel):
 
 
 @router.post("", response_model=AnalyzeResponse)
-async def analyze_requirement(payload: AnalyzeRequest):
+async def analyze_requirement(payload: AnalyzeRequest, user: User = Depends(get_current_user)):
     """
     Preview AI analysis without creating a task.
     Returns the Claude analysis plus the routing decision.
@@ -72,7 +74,7 @@ async def analyze_requirement(payload: AnalyzeRequest):
 
 
 @router.get("/providers")
-async def list_available_providers():
+async def list_available_providers(user: User = Depends(get_current_user)):
     """Return which generation providers are currently configured and available."""
     return {
         "providers": routing_service.get_available_providers(),

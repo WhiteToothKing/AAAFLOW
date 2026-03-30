@@ -9,7 +9,15 @@ interface ImportMeta {
 }
 
 interface Window {
-  gameartDesktop?: { isDesktop: boolean };
+  gameartDesktop?: {
+    isDesktop: boolean;
+    notifyGenerationDone: (title?: string, body?: string) => void;
+    minimize: () => void;
+    maximize: () => void;
+    closeWindow: () => void;
+    isMaximized: () => Promise<boolean>;
+    onMaximizeChanged: (cb: (isMaximized: boolean) => void) => () => void;
+  };
   aaaflowLauncher?: {
     getRepoRoot: () => Promise<{ ok: boolean; path?: string; message?: string }>;
     checkHealth: () => Promise<boolean>;

@@ -7,11 +7,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.models.task import ArtTask, GenerationResult, TaskStatus
+from app.models.user import User
 from app.schemas.task import (
     TaskCreate, TaskUpdate, TaskResponse,
     TaskListResponse, ResultFeedback,
 )
 from app.services.agent_orchestrator import agent_orchestrator
+from app.api.deps import get_current_user, require_not_readonly
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
@@ -20,6 +22,7 @@ router = APIRouter(prefix="/tasks", tags=["tasks"])
 async def create_task(
     payload: TaskCreate,
     background_tasks: BackgroundTasks,
+    user: User = Depends(require_not_readonly),
     db: AsyncSession = Depends(get_db),
 ):
     task = ArtTask(
@@ -35,6 +38,7 @@ async def create_task(
         reference_images=payload.reference_images,
         tags=payload.tags,
         priority=payload.priority,
+        creator_id=user.id,
     )
     db.add(task)
     await db.commit()
@@ -60,6 +64,7 @@ async def list_tasks(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     status: Optional[TaskStatus] = None,
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(ArtTask)
@@ -85,7 +90,7 @@ async def list_tasks(
 
 
 @router.get("/{task_id}", response_model=TaskResponse)
-async def get_task(task_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+async def get_task(task_id: uuid.UUID, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     task = await db.get(ArtTask, task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -96,6 +101,7 @@ async def get_task(task_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
 async def update_task(
     task_id: uuid.UUID,
     payload: TaskUpdate,
+    user: User = Depends(require_not_readonly),
     db: AsyncSession = Depends(get_db),
 ):
     task = await db.get(ArtTask, task_id)
@@ -112,7 +118,7 @@ async def update_task(
 
 
 @router.delete("/{task_id}", status_code=204)
-async def delete_task(task_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+async def delete_task(task_id: uuid.UUID, user: User = Depends(require_not_readonly), db: AsyncSession = Depends(get_db)):
     task = await db.get(ArtTask, task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -125,6 +131,7 @@ async def regenerate_task(
     task_id: uuid.UUID,
     feedback: Optional[str] = None,
     background_tasks: BackgroundTasks = BackgroundTasks(),
+    user: User = Depends(require_not_readonly),
     db: AsyncSession = Depends(get_db),
 ):
     task = await db.get(ArtTask, task_id)
@@ -156,6 +163,7 @@ async def submit_feedback(
     task_id: uuid.UUID,
     result_id: uuid.UUID,
     payload: ResultFeedback,
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.get(GenerationResult, result_id)

@@ -41,3 +41,29 @@ class SetupRequest(BaseModel):
     email: str = Field(..., max_length=255)
     password: str = Field(..., min_length=6)
     full_name: Optional[str] = None
+
+
+class UserUpdateAdmin(BaseModel):
+    full_name: Optional[str] = None
+    department: Optional[str] = None
+    email: Optional[str] = None
+    role: Optional[str] = None
+    is_active: Optional[bool] = None
+    password: Optional[str] = Field(None, min_length=6)
+
+
+class UserListResponse(BaseModel):
+    users: list[UserResponse]
+    total: int
+    page: int
+    page_size: int
+
+
+class UserProfileSelfUpdate(BaseModel):
+    full_name: Optional[str] = None
+    department: Optional[str] = None
+
+
+class PasswordChangeRequest(BaseModel):
+    current_password: str
+    new_password: str = Field(..., min_length=6)

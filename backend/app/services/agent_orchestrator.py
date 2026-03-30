@@ -178,14 +178,21 @@ class AgentOrchestrator:
             db.add(gen_result)
 
     async def _broadcast_status(self, task: ArtTask):
+        payload = {
+            "task_id": str(task.id),
+            "status": task.status.value,
+            "title": task.title,
+        }
         try:
             redis = await get_redis()
-            await redis.publish(
-                f"task:{task.id}:status",
-                task.status.value,
-            )
+            await redis.publish(f"task:{task.id}:status", task.status.value)
         except Exception as e:
-            logger.warning(f"Failed to broadcast status update: {e}")
+            logger.warning(f"Redis broadcast failed: {e}")
+        try:
+            from app.api.ws import ws_manager
+            await ws_manager.broadcast("task_status", payload)
+        except Exception as e:
+            logger.warning(f"WS broadcast failed: {e}")
 
     async def regenerate_task(
         self,

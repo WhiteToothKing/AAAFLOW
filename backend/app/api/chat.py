@@ -12,12 +12,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.config import settings
 from app.models.chat import ChatSession
+from app.models.user import User
 from app.schemas.chat import (
     ChatMessageCreate, ChatSessionCreate,
     ChatSessionResponse, ChatSessionListItem,
 )
 from app.services.chat_service import chat_service
 from app.services.skill_registry import skill_registry
+from app.api.deps import get_current_user, require_not_readonly
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -77,6 +79,7 @@ async def chat_llm_options():
 @router.post("/sessions", response_model=ChatSessionResponse, status_code=201)
 async def create_session(
     payload: ChatSessionCreate,
+    user: User = Depends(require_not_readonly),
     db: AsyncSession = Depends(get_db),
 ):
     prov = chat_service._normalize_provider(payload.llm_provider)
@@ -94,6 +97,7 @@ async def create_session(
 @router.get("/sessions", response_model=list[ChatSessionListItem])
 async def list_sessions(
     limit: int = Query(50, ge=1, le=100),
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     sessions = await chat_service.list_sessions(db, limit=limit)
@@ -123,6 +127,7 @@ async def list_sessions(
 @router.get("/sessions/{session_id}", response_model=ChatSessionResponse)
 async def get_session(
     session_id: uuid.UUID,
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     session = await chat_service.get_session(session_id, db)
@@ -134,6 +139,7 @@ async def get_session(
 @router.delete("/sessions/{session_id}", status_code=204)
 async def delete_session(
     session_id: uuid.UUID,
+    user: User = Depends(require_not_readonly),
     db: AsyncSession = Depends(get_db),
 ):
     session = await db.get(ChatSession, session_id)
@@ -147,6 +153,7 @@ async def delete_session(
 async def send_message(
     session_id: uuid.UUID,
     payload: ChatMessageCreate,
+    user: User = Depends(require_not_readonly),
     db: AsyncSession = Depends(get_db),
 ):
     """Send a message and receive a streaming SSE response."""
@@ -175,7 +182,7 @@ async def send_message(
 
 
 @router.get("/skills")
-async def list_skills():
+async def list_skills(user: User = Depends(get_current_user)):
     """List all available skills the AI agent can invoke."""
     skills = skill_registry.list_skills()
     return {

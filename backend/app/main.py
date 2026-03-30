@@ -1,4 +1,5 @@
 import os
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -7,15 +8,26 @@ from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
 from app.core.redis import close_redis
-from app.api import auth, tasks, workflows, upload, health, analyze, chat
+from app.api import auth, tasks, workflows, upload, health, analyze, chat, users, audit, system, ws
+from app.middleware.metrics import MetricsMiddleware
+
+
+log_level = os.getenv("LOG_LEVEL", "info").upper()
+logging.basicConfig(
+    level=getattr(logging, log_level, logging.INFO),
+    format="%(asctime)s %(levelname)-8s [%(name)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
     os.makedirs(settings.OUTPUT_DIR, exist_ok=True)
+    logging.getLogger(__name__).info("AAAFLOW %s starting", settings.APP_VERSION)
     yield
     await close_redis()
+    logging.getLogger(__name__).info("AAAFLOW shutting down")
 
 
 app = FastAPI(
@@ -38,6 +50,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(MetricsMiddleware)
 
 app.include_router(health.router, prefix="/api")
 app.include_router(auth.router, prefix="/api")
@@ -46,6 +59,10 @@ app.include_router(workflows.router, prefix="/api")
 app.include_router(upload.router, prefix="/api")
 app.include_router(analyze.router, prefix="/api")
 app.include_router(chat.router, prefix="/api")
+app.include_router(users.router, prefix="/api")
+app.include_router(audit.router, prefix="/api")
+app.include_router(system.router, prefix="/api")
+app.include_router(ws.router, prefix="/api")
 
 if os.path.isdir(settings.UPLOAD_DIR):
     app.mount(

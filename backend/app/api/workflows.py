@@ -7,7 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.models.task import ComfyUIWorkflow
+from app.models.user import User
 from app.schemas.workflow import WorkflowCreate, WorkflowResponse, WorkflowUpdate
+from app.api.deps import get_current_user, require_admin
 
 router = APIRouter(prefix="/workflows", tags=["workflows"])
 
@@ -15,6 +17,7 @@ router = APIRouter(prefix="/workflows", tags=["workflows"])
 @router.post("", response_model=WorkflowResponse, status_code=201)
 async def create_workflow(
     payload: WorkflowCreate,
+    user: User = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
     workflow = ComfyUIWorkflow(
@@ -34,6 +37,7 @@ async def create_workflow(
 @router.get("", response_model=list[WorkflowResponse])
 async def list_workflows(
     active_only: bool = Query(True),
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(ComfyUIWorkflow)
@@ -46,6 +50,7 @@ async def list_workflows(
 @router.get("/{workflow_id}", response_model=WorkflowResponse)
 async def get_workflow(
     workflow_id: uuid.UUID,
+    user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     wf = await db.get(ComfyUIWorkflow, workflow_id)
@@ -58,6 +63,7 @@ async def get_workflow(
 async def update_workflow(
     workflow_id: uuid.UUID,
     payload: WorkflowUpdate,
+    user: User = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
     wf = await db.get(ComfyUIWorkflow, workflow_id)
@@ -76,6 +82,7 @@ async def update_workflow(
 @router.delete("/{workflow_id}", status_code=204)
 async def delete_workflow(
     workflow_id: uuid.UUID,
+    user: User = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
     wf = await db.get(ComfyUIWorkflow, workflow_id)

@@ -15,6 +15,13 @@ const {
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
+
+let autoUpdater;
+try {
+  autoUpdater = require('electron-updater').autoUpdater;
+} catch (e) {
+  autoUpdater = null;
+}
 const http = require('http');
 const { spawn } = require('child_process');
 
@@ -142,13 +149,23 @@ function createMainWindow() {
     show: false,
     title: 'AAAFLOW',
     backgroundColor: '#f5f5f5',
+    frame: false,
+    titleBarStyle: 'hidden',
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: true,
+      sandbox: false,
     },
   });
+
+  const sendMaximizeState = () => {
+    if (!win.isDestroyed()) {
+      win.webContents.send('aaaflow:maximize-changed', win.isMaximized());
+    }
+  };
+  win.on('maximize', sendMaximizeState);
+  win.on('unmaximize', sendMaximizeState);
 
   win.once('ready-to-show', () => win.show());
 
@@ -217,6 +234,26 @@ function createTray() {
 }
 
 function registerIpc() {
+  ipcMain.on('aaaflow:minimize', (event) => {
+    const w = BrowserWindow.fromWebContents(event.sender);
+    if (w && !w.isDestroyed()) w.minimize();
+  });
+  ipcMain.on('aaaflow:maximize', (event) => {
+    const w = BrowserWindow.fromWebContents(event.sender);
+    if (!w || w.isDestroyed()) return;
+    if (w.isMaximized()) w.unmaximize();
+    else w.maximize();
+  });
+  ipcMain.on('aaaflow:close', (event) => {
+    const w = BrowserWindow.fromWebContents(event.sender);
+    if (w && !w.isDestroyed()) w.close();
+  });
+  ipcMain.handle('aaaflow:is-maximized', (event) => {
+    const w = BrowserWindow.fromWebContents(event.sender);
+    if (!w || w.isDestroyed()) return false;
+    return w.isMaximized();
+  });
+
   ipcMain.handle('aaaflow:getRepoRoot', async () => {
     const root = findRepoRoot();
     if (root) return { ok: true, path: root };
@@ -340,6 +377,10 @@ function registerIpc() {
       n.show();
     }
   });
+
+  ipcMain.on('aaaflow:install-update', () => {
+    if (autoUpdater) autoUpdater.quitAndInstall();
+  });
 }
 
 async function bootstrap() {
@@ -363,10 +404,31 @@ async function bootstrap() {
 
   if (await checkBackendOnce()) {
     createMainWindow();
-    return;
+  } else {
+    createLauncherWindow();
   }
 
-  createLauncherWindow();
+  if (autoUpdater && app.isPackaged) {
+    autoUpdater.checkForUpdatesAndNotify();
+    autoUpdater.on('update-available', (info) => {
+      const ver = info.version;
+      if (mainWin && !mainWin.isDestroyed()) {
+        mainWin.webContents.send('aaaflow:update-available', ver);
+      }
+      if (launcherWin && !launcherWin.isDestroyed()) {
+        launcherWin.webContents.send('aaaflow:update-available', ver);
+      }
+    });
+    autoUpdater.on('update-downloaded', (info) => {
+      const ver = info.version;
+      if (mainWin && !mainWin.isDestroyed()) {
+        mainWin.webContents.send('aaaflow:update-downloaded', ver);
+      }
+      if (launcherWin && !launcherWin.isDestroyed()) {
+        launcherWin.webContents.send('aaaflow:update-downloaded', ver);
+      }
+    });
+  }
 }
 
 const gotLock = app.requestSingleInstanceLock();
